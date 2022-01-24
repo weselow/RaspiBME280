@@ -11,7 +11,7 @@ Rasperberri Temperature Controller with Telegram Notifications.
 - SDA (GPIO 2) к SDI или SDA (синий)
 - SCL (GPIO 3) к SCK или SCL (оранжевый)
 
-*См. источник: [Источник](https://docs.microsoft.com/ru-ru/dotnet/iot/tutorials/temp-sensor)*
+*См.[источник](https://docs.microsoft.com/ru-ru/dotnet/iot/tutorials/temp-sensor)*
 
 ## Настройки:
 В файл `NLog.config` добавить значения:
