@@ -15,6 +15,13 @@ Rasperberri Temperature Controller with Telegram Notifications.
 
 *См.[источник](https://docs.microsoft.com/ru-ru/dotnet/iot/tutorials/temp-sensor)*
 
+## CPU Controller
+
+Запускает на заданном пине контроль вентилятора процессора.
+PIN по-умолчанию (CpuFanPin): 14
+Температура для включения вентилятора (CpuMaxTemperature): 50
+AllowCpuFan: true / false
+
 ## Настройки:
 В файл `NLog.config` добавить значения:
  - botToken: `botToken="xxx"`

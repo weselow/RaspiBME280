@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Iot.Device.Bmxx80;
 using Iot.Device.Bmxx80.PowerMode;
 
-namespace RaspiTemp
+namespace RaspiTemp.Sensor
 {
     /// <summary>
     /// Класс по получению данных с датчика.
@@ -24,7 +24,7 @@ namespace RaspiTemp
              * Некоторые производители коммутационных плат BME280 используют значение дополнительного адреса. 
              * Для этих устройств используйте Bme280.SecondaryI2cAddress.
              */
-            var i2cSettings = new I2cConnectionSettings(1, Bme280.DefaultI2cAddress);
+            var i2cSettings = new I2cConnectionSettings(1, Bmx280Base.DefaultI2cAddress);
             using I2cDevice i2cDevice = I2cDevice.Create(i2cSettings);
             using var bme280 = new Bme280(i2cDevice);
 
