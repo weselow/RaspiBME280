@@ -20,12 +20,11 @@ namespace RaspiTemp
             try
             {
                 var appSettings = ConfigurationManager.AppSettings;
-                result = appSettings[key] ?? string.Empty;
-                Logger.Info(result);
+                result = appSettings[key] ?? string.Empty;               
             }
             catch (ConfigurationErrorsException)
             {
-                Logger.Warn("Error reading app settings");
+                Logger.Warn("Error reading app settings.");
             }
 
             return !string.IsNullOrEmpty(result) ? result : null;

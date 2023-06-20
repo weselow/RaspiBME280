@@ -20,25 +20,26 @@ namespace RaspiTemp.Cpu
             //проверить наличие файла
             if (!File.Exists(temperatureFilePath))
             {
-                Logger.Error("CPU Temperature File was not found:  {path}.", temperatureFilePath);
+                Logger.Error("CPU Temperature File was not found: {path}.", temperatureFilePath);
                 return false;
             }
 
             //прочитать критическую температуру из настроек
             var cpuMaxTemp = Convert.ToInt32(Tools.ReadSetting("CpuMaxTemperature") ?? "50");
             var cpuCoolerPin = Convert.ToInt32(Tools.ReadSetting("CpuFanPin") ?? "14");
-            var ifAllow = Tools.ReadSetting("AllowCpuFan") == "true" ? true : false;
+            var alarmDelaySeconds = Convert.ToInt32(Tools.ReadSetting("AlarmSendEverySecondsDelay") ?? "60");
+            bool ifAllow = Tools.ReadSetting("AllowCpuFanController")?.ToLower() == "true";
 
             //проверяем, а надо ли вообще контролировать вентилятор
             if (!ifAllow)
             {
-                Logger.Error("Allow CPU Fan is set to false.");
+                Logger.Error("Allow CPU Fan is set to FALSE!");
                 return false;
             }
 
             using var controller = new GpioController();
             controller.OpenPin(cpuCoolerPin, PinMode.Output);
-
+            int counter = 0;
             while (!token.IsCancellationRequested)
             {
                 var ct = await GetCpuTemperature();
@@ -46,7 +47,8 @@ namespace RaspiTemp.Cpu
 
                 if (ct > cpuMaxTemp)
                 {
-                    Logger.Error("CRITICAL CPU TEMPERATURE: {temperature}", ct);
+                    if (counter % alarmDelaySeconds == 0) { Logger.Error("CRITICAL CPU TEMPERATURE: {temperature}", ct); }
+                    else { Logger.Info("CRITICAL CPU TEMPERATURE: {temperature}", ct); }
                 }
                 else
                 {
@@ -55,6 +57,7 @@ namespace RaspiTemp.Cpu
                 }
 
                 Thread.Sleep(1000);
+                counter = counter > Int32.MaxValue - 5 ? 0 : counter + 1;
             }
 
             return true;
@@ -72,7 +75,7 @@ namespace RaspiTemp.Cpu
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при получении температуры процессора: {ex.Message}");
+                Logger.Error(ex, "Ошибка при получении температуры процессора: {message}", ex.Message);
             }
 
             return -1;
