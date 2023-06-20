@@ -34,8 +34,7 @@ namespace RaspiTemp.Sensor
                 return busId;                
             }
             catch (Exception e) 
-            {
-                Console.WriteLine(e.Message);
+            {                
                 Logger.Error(e, "Ошибка при попытке найти устройство в /dev и определить его BusId: {msg}", e.Message);
                 Environment.Exit(1);
             }
@@ -54,7 +53,7 @@ namespace RaspiTemp.Sensor
              */
 
 
-            var i2cSettings = new I2cConnectionSettings(/*BusId*/ 1, 
+            var i2cSettings = new I2cConnectionSettings(BusId, 
                 ifUsePrimaryAddress ? Bmx280Base.DefaultI2cAddress: Bme280.SecondaryI2cAddress);
 
             using var i2cDevice = I2cDevice.Create(i2cSettings);
@@ -62,8 +61,6 @@ namespace RaspiTemp.Sensor
 
             //Время, необходимое микросхеме для выполнения измерений с текущими параметрами микросхемы
             int measurementTime = bme280.GetMeasurementDuration();
-            Logger.Info("Время, необходимое микросхеме для выполнения измерений: {timer}", measurementTime);
-            
 
             //Задает режим питания Bmx280PowerMode.Forced.
             //В этом случае микросхема проводит одно измерение, сохраняет результаты, а затем переходит в спящий режим.

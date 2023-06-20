@@ -25,7 +25,7 @@ namespace RaspiTemp
             }
             catch (ConfigurationErrorsException)
             {
-                Logger.Warn("Error reading app settings");
+                Logger.Warn("Error reading app settings.");
             }
 
             return !string.IsNullOrEmpty(result) ? result : null;

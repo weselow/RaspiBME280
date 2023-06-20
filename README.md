@@ -23,6 +23,10 @@ PIN по-умолчанию (CpuFanPin): 14
 AllowCpuFan: true / false
 
 ## Настройки:
+
+На Rasperberry Pi:
+- включить поддержку I2C: raspi-config -> Interfacing Options -> Enable I2C
+
 В файл `NLog.config` добавить значения:
  - botToken: `botToken="xxx"`
  - chatId: `chatId="xxx"`

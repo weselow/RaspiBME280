@@ -18,13 +18,20 @@ namespace RaspiTemp.Sensor
             var maxTem = Convert.ToInt32(Tools.ReadSetting("MaxTemperature") ?? "40");
             var alarmDelaySeconds = Convert.ToInt32(Tools.ReadSetting("AlarmSendEverySecondsDelay") ?? "60");
             var messageSecondsDelay = Convert.ToInt32(Tools.ReadSetting("MessageSecondsDelay") ?? "3");
-            Logger.Warn("Max Air Temperature to Control: {maxTem}", maxTem);
-            Logger.Warn("Alarm sends every {alarmDelaySeconds} seconds.", alarmDelaySeconds);
+            bool ifAllowAirController = Tools.ReadSetting("AllowAirTempController")?.ToLower() == "true";
+
+            if (!ifAllowAirController)
+            {
+                Logger.Error("Air Controller is set to FALSE!");
+                return false;
+            }            
+            
 
             //раз в минуту проверяем данные
             //если превысили температуру  - то каждые 10 минут шлем уведомления в телеграмм
             //до тех пор, пока температура не снизится до заданной
             int counter = 0;
+
             bool ifUsePrimaryAddress = true;
             while (!token.IsCancellationRequested)
             {
@@ -42,7 +49,7 @@ namespace RaspiTemp.Sensor
                     }
                     catch (Exception e2)
                     {
-                        Logger.Error("Ошибка при получении данных по первичному или вторичному адресу.");
+                        Logger.Error("Ошибка при получении данных по первичному или вторичному адресу I2C устройства.");
                         Console.WriteLine("=== Ошибка е1 ===");
                         Console.WriteLine(e1);
                         Console.WriteLine("=== ===");
@@ -54,21 +61,18 @@ namespace RaspiTemp.Sensor
                     }                    
                 }
 
-
-
-                Console.WriteLine($"Air Temp: {data.Temperature.DegreesCelsius}.");
                 if (data.Temperature.DegreesCelsius > maxTem && counter % alarmDelaySeconds == 0)
                 {
                     //время отправлять сообщение
                     Logger.Error("CRITICAL AIR TEMPERATURE: {temperature}", data.Temperature.DegreesCelsius);
                 }
-                else if (counter % messageSecondsDelay == 0)
+                else
                 {
                     var msg = $"Air Temperature: {data.Temperature.DegreesCelsius}";
                     Logger.Info(msg);
                 }
 
-                Thread.Sleep(1000);
+                Thread.Sleep(messageSecondsDelay);
                 counter++;
             }
 

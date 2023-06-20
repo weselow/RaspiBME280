@@ -20,19 +20,19 @@ namespace RaspiTemp.Cpu
             //проверить наличие файла
             if (!File.Exists(temperatureFilePath))
             {
-                Logger.Error("CPU Temperature File was not found:  {path}.", temperatureFilePath);
+                Logger.Error("CPU Temperature File was not found: {path}.", temperatureFilePath);
                 return false;
             }
 
             //прочитать критическую температуру из настроек
             var cpuMaxTemp = Convert.ToInt32(Tools.ReadSetting("CpuMaxTemperature") ?? "50");
             var cpuCoolerPin = Convert.ToInt32(Tools.ReadSetting("CpuFanPin") ?? "14");
-            var ifAllow = Tools.ReadSetting("AllowCpuFan") == "true" ? true : false;
+            bool ifAllow = Tools.ReadSetting("AllowCpuFanController")?.ToLower() == "true";
 
             //проверяем, а надо ли вообще контролировать вентилятор
             if (!ifAllow)
             {
-                Logger.Error("Allow CPU Fan is set to false.");
+                Logger.Error("Allow CPU Fan is set to FALSE!");
                 return false;
             }
 
@@ -72,7 +72,7 @@ namespace RaspiTemp.Cpu
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка при получении температуры процессора: {ex.Message}");
+                Logger.Error(ex, "Ошибка при получении температуры процессора: {message}", ex.Message);
             }
 
             return -1;
