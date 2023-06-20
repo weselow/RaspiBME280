@@ -61,10 +61,17 @@ namespace RaspiTemp.Sensor
                     }
                 }
 
-                if (data.Temperature.DegreesCelsius > maxTem && counter % alarmDelaySeconds == 0)
+                if (data.Temperature.DegreesCelsius > maxTem)
                 {
-                    //время отправлять сообщение
-                    Logger.Error("CRITICAL AIR TEMPERATURE: {temperature}", Convert.ToInt32(data.Temperature.DegreesCelsius));
+                    if (counter % alarmDelaySeconds == 0)
+                    {
+                        Logger.Error("CRITICAL AIR TEMPERATURE: {temperature}", Convert.ToInt32(data.Temperature.DegreesCelsius));
+                    }
+                    else 
+                    {
+                        Logger.Info("CRITICAL AIR TEMPERATURE: {temperature}", Convert.ToInt32(data.Temperature.DegreesCelsius));
+                    }
+                    
                 }
                 else
                 {
