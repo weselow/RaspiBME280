@@ -16,7 +16,35 @@ namespace RaspiTemp.Sensor
     internal static class SensorReader
     {
         private static readonly NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
-        public static SensorData Read()
+        private static int BusId { get; set; } = 0;
+
+        static SensorReader() 
+        {
+            BusId = GetBusId();
+        }
+        private static int GetBusId() 
+        {
+            var path = "/dev";
+            try 
+            {
+                var files = Directory.GetFiles(path, "i2c-*");
+                if (!files.Any()) throw new Exception("No i2c-* files!");
+                var busId = Convert.ToInt32(files.First().Split('-').Last());
+                Logger.Warn("Найден BusId: {busId}", busId);
+                return busId;                
+            }
+            catch (Exception e) 
+            {
+                Console.WriteLine(e.Message);
+                Logger.Error(e, "Ошибка при попытке найти устройство в /dev и определить его BusId: {msg}", e.Message);
+                Environment.Exit(1);
+            }
+
+            return -1;
+        }
+
+
+        public static SensorData Read(bool ifUsePrimaryAddress)
         {
             /* Для i2cSettings задан новый экземпляр I2cConnectionSettings. Конструктор задает параметру busId значение 1, 
              * а параметру deviceAddress — значение Bme280.DefaultI2cAddress.
@@ -24,12 +52,18 @@ namespace RaspiTemp.Sensor
              * Некоторые производители коммутационных плат BME280 используют значение дополнительного адреса. 
              * Для этих устройств используйте Bme280.SecondaryI2cAddress.
              */
-            var i2cSettings = new I2cConnectionSettings(1, Bmx280Base.DefaultI2cAddress);
-            using I2cDevice i2cDevice = I2cDevice.Create(i2cSettings);
+
+
+            var i2cSettings = new I2cConnectionSettings(/*BusId*/ 1, 
+                ifUsePrimaryAddress ? Bmx280Base.DefaultI2cAddress: Bme280.SecondaryI2cAddress);
+
+            using var i2cDevice = I2cDevice.Create(i2cSettings);
             using var bme280 = new Bme280(i2cDevice);
 
             //Время, необходимое микросхеме для выполнения измерений с текущими параметрами микросхемы
             int measurementTime = bme280.GetMeasurementDuration();
+            Logger.Info("Время, необходимое микросхеме для выполнения измерений: {timer}", measurementTime);
+            
 
             //Задает режим питания Bmx280PowerMode.Forced.
             //В этом случае микросхема проводит одно измерение, сохраняет результаты, а затем переходит в спящий режим.

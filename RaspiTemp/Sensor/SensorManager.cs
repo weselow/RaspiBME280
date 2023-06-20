@@ -25,9 +25,38 @@ namespace RaspiTemp.Sensor
             //если превысили температуру  - то каждые 10 минут шлем уведомления в телеграмм
             //до тех пор, пока температура не снизится до заданной
             int counter = 0;
+            bool ifUsePrimaryAddress = true;
             while (!token.IsCancellationRequested)
             {
-                var data = SensorReader.Read();
+                SensorData data;
+                try
+                {
+                    data = SensorReader.Read(ifUsePrimaryAddress);                    
+                }
+                catch (Exception e1)
+                {
+                    try
+                    {
+                        ifUsePrimaryAddress = !ifUsePrimaryAddress;
+                        data = SensorReader.Read(ifUsePrimaryAddress);
+                    }
+                    catch (Exception e2)
+                    {
+                        Logger.Error("Ошибка при получении данных по первичному или вторичному адресу.");
+                        Console.WriteLine("=== Ошибка е1 ===");
+                        Console.WriteLine(e1);
+                        Console.WriteLine("=== ===");
+                        Console.WriteLine("== Ошибка е2:");
+                        Console.WriteLine(e2);
+                        Console.WriteLine("=== ===");
+
+                        return false;
+                    }                    
+                }
+
+
+
+                Console.WriteLine($"Air Temp: {data.Temperature.DegreesCelsius}.");
                 if (data.Temperature.DegreesCelsius > maxTem && counter % alarmDelaySeconds == 0)
                 {
                     //время отправлять сообщение
@@ -35,7 +64,7 @@ namespace RaspiTemp.Sensor
                 }
                 else if (counter % messageSecondsDelay == 0)
                 {
-                    var msg = $"{DateTime.Now.ToLongTimeString} - Air Temperature: {data.Temperature.DegreesCelsius:0.#}";
+                    var msg = $"Air Temperature: {data.Temperature.DegreesCelsius}";
                     Logger.Info(msg);
                 }
 

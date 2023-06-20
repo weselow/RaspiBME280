@@ -27,10 +27,10 @@ namespace RaspiTemp.Cpu
             //прочитать критическую температуру из настроек
             var cpuMaxTemp = Convert.ToInt32(Tools.ReadSetting("CpuMaxTemperature") ?? "50");
             var cpuCoolerPin = Convert.ToInt32(Tools.ReadSetting("CpuFanPin") ?? "14");
-            var ifAllow =Tools.ReadSetting("AllowCpuFan") == "true" ? true : false;
+            var ifAllow = Tools.ReadSetting("AllowCpuFan") == "true" ? true : false;
 
             //проверяем, а надо ли вообще контролировать вентилятор
-            if(!ifAllow)
+            if (!ifAllow)
             {
                 Logger.Error("Allow CPU Fan is set to false.");
                 return false;
@@ -50,7 +50,7 @@ namespace RaspiTemp.Cpu
                 }
                 else
                 {
-                    var msg = $"{DateTime.Now.ToLongTimeString} - CPU Temperature: {ct:0.#}";
+                    var msg = $"CPU Temperature: {ct}";
                     Logger.Info(msg);
                 }
 
@@ -67,8 +67,7 @@ namespace RaspiTemp.Cpu
             try
             {
                 string temperatureData = await File.ReadAllTextAsync(temperatureFilePath);
-                int temperature = int.Parse(temperatureData) / 1000; // Преобразование в градусы Цельсия
-                Console.WriteLine($"CPU Temperature: {temperature}°C");
+                int temperature = int.Parse(temperatureData) / 1000; // Преобразование в градусы Цельсия                
                 return temperature;
             }
             catch (Exception ex)

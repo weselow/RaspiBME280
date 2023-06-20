@@ -14,6 +14,7 @@ var cputask = CpuManager.RunAsync(cts.Token);
 Console.CancelKeyPress += (sender, e) =>
 {
     e.Cancel = true; // Отменяем стандартное поведение завершения программы
+    Console.WriteLine("... Starting finishing program ...");
     cts.Cancel();
     Task.WaitAll(sensorTask, cputask);
     Environment.Exit(0); // Завершаем программу явно
@@ -21,3 +22,4 @@ Console.CancelKeyPress += (sender, e) =>
 
 Task.WaitAll(sensorTask, cputask);
 Console.WriteLine("Program Finished!");
+NLog.LogManager.Shutdown();
