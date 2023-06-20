@@ -20,3 +20,4 @@ Console.CancelKeyPress += (sender, e) =>
 };
 
 Task.WaitAll(sensorTask, cputask);
+Console.WriteLine("Program Finished!");
